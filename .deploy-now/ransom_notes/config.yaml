@@ -1,0 +1,15 @@
+version: 1.0
+
+deploy:
+  persistent-data:
+    - database/database.sqlite
+    - storage/app/public
+
+  post-deployment-remote-commands:
+    - mkdir -p database
+    - touch database/database.sqlite && chmod 664 database/database.sqlite
+    - php artisan migrate --force
+    - php artisan config:cache
+    - php artisan route:cache
+    - php artisan view:cache
+    - php artisan storage:link
