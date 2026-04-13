@@ -19,7 +19,7 @@ env:
 jobs:
 # Please do not rename this job
   build-project:
-    name: build ransom_notes
+    name: build mentimeter-clone
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,7 +63,7 @@ jobs:
         uses: ionos-deploy-now/template-renderer-action@v2
         id: template
         with:
-          input-directory: .deploy-now/ransom_notes
+          input-directory: .deploy-now/mentimeter-clone
           output-directory: ${{ env.DEPLOYMENT_FOLDER }}
           intermediate-data-file: ${{ env.DEPLOYMENT_FOLDER }}/.template-renderer-data
 
@@ -89,5 +89,5 @@ jobs:
           branch-id: ${{ inputs.branch-id }}
           version: ${{ github.sha }}
           folder: ${{ env.DEPLOYMENT_FOLDER }}
-          config-file: .deploy-now/ransom_notes/config.yaml
+          config-file: .deploy-now/mentimeter-clone/config.yaml
           action: upload
