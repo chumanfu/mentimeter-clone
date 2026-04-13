@@ -21,43 +21,15 @@ jobs:
   build-project:
     name: build mentimeter-clone
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # if you add permissions here this needs to be done in the mentimeter-clone-orchestration.yaml as well
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: dom, fileinfo, mbstring, pdo_sqlite
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install npm dependencies and build
-        run: |
-          npm ci
-          npm run build
 
       - name: Render templates
         uses: ionos-deploy-now/template-renderer-action@v2
@@ -67,17 +39,38 @@ jobs:
           output-directory: ${{ env.DEPLOYMENT_FOLDER }}
           intermediate-data-file: ${{ env.DEPLOYMENT_FOLDER }}/.template-renderer-data
 
-      - name: Generate Laravel app key
-        run: php artisan key:generate --force --no-interaction
+      - name: Setup composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:2
 
-      - name: Create SQLite database file
-        run: mkdir -p database && touch database/database.sqlite
+      - name: Run composer install
+# uncomment the following lines if you want to add environment variables for this step
+#        env:
+#          MY_ENV_VAR: value-for-my-env-var
+#          MY_SECRET_ENV_VAR: ${{ secrets.MY_SECRET }} # here you can find information how to create secrets: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+        run: composer install --optimize-autoloader --no-dev
 
-      - name: Run migrations
-        run: php artisan migrate --force --no-interaction
+      - name: Build PHP assets
+# uncomment the following lines if you want to add environment variables for this step
+#        env:
+#          MY_ENV_VAR: value-for-my-env-var
+#          MY_SECRET_ENV_VAR: ${{ secrets.MY_SECRET }} # here you can find information how to create secrets: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+        run: php artisan key:generate --force -n
 
-      - name: Seed database
-        run: php artisan db:seed --force --no-interaction
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: v22.x
+
+      - name: Build Node assets
+        env:
+          CI: true
+          SITE_URL: ${{ inputs.site-url }}
+        run: |
+          npm ci
+          npm run build
 
 # Please do not touch the following action
       - name: Store deployment content
@@ -85,7 +78,7 @@ jobs:
         with:
           api-key: ${{ secrets.IONOS_API_KEY }}
           service-host: api-eu.ionos.space
-          project-id: ddd352fe-506f-4266-9a07-b9563fd57fa4
+          project-id: 1b3ba547-6ad8-4c31-878e-89f68015c3ad
           branch-id: ${{ inputs.branch-id }}
           version: ${{ github.sha }}
           folder: ${{ env.DEPLOYMENT_FOLDER }}
