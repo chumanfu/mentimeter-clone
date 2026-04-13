@@ -24,13 +24,16 @@ jobs:
         with:
           api-key: ${{ secrets.IONOS_API_KEY }}
           service-host: api-eu.ionos.space
-          project-id: ddd352fe-506f-4266-9a07-b9563fd57fa4
+          project-id: 1b3ba547-6ad8-4c31-878e-89f68015c3ad
           action: retrieve-info
 
 
   build:
     name: build
     needs: retrieve-project
+    permissions:
+      contents: read
+      packages: write
     if: ${{ needs.retrieve-project.outputs.deployment-enabled == 'true' }}
     uses: ./.github/workflows/mentimeter-clone-build.yaml
     with:
@@ -50,6 +53,6 @@ jobs:
         with:
           api-key: ${{ secrets.IONOS_API_KEY }}
           service-host: api-eu.ionos.space
-          project-id: ddd352fe-506f-4266-9a07-b9563fd57fa4
+          project-id: 1b3ba547-6ad8-4c31-878e-89f68015c3ad
           branch-id: ${{ needs.retrieve-project.outputs.branch-id }}
           action: dispatch-deployments
