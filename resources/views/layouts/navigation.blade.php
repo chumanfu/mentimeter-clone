@@ -18,6 +18,11 @@
                     <x-nav-link :href="route('presentations.create')" :active="request()->routeIs('presentations.create')">
                         {{ __('New presentation') }}
                     </x-nav-link>
+                    @if (Auth::user()->is_superuser)
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                            {{ __('Admin') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -76,6 +81,11 @@
             <x-responsive-nav-link :href="route('presentations.create')" :active="request()->routeIs('presentations.create')">
                 {{ __('New presentation') }}
             </x-responsive-nav-link>
+            @if (Auth::user()->is_superuser)
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    {{ __('Admin') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

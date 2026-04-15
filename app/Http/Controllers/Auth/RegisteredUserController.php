@@ -36,10 +36,17 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $superuserEmails = collect(explode(',', (string) env('SUPERUSER_EMAILS', '')))
+            ->map(fn (string $email) => strtolower(trim($email)))
+            ->filter()
+            ->values();
+        $email = strtolower((string) $request->email);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'is_superuser' => $superuserEmails->contains($email),
         ]);
 
         event(new Registered($user));
