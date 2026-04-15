@@ -56,3 +56,9 @@ runtime:
   deployment:
     # This line is mandatory for secrets to be injected
     env-file: .env.template
+    post-deployment-remote-commands:
+      - php artisan migrate --force
+  
+  cron-jobs:
+    - command: php artisan schedule:run
+      schedule: "0 * * * *"
