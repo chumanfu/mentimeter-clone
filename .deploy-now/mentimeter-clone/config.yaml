@@ -52,13 +52,3 @@ deploy:
 #  cron-jobs:
 #    - command: my-cron-job-command # the deployment is located at $HOME/htdocs/ to execute a deployed script just prefix it accordingly
 #      schedule: 0 5 * * * # run every day at 5:00
-runtime:
-  deployment:
-    # This line is mandatory for secrets to be injected
-    env-file: .env.template
-    post-deployment-remote-commands:
-      - php artisan migrate --force
-  
-  cron-jobs:
-    - command: php artisan schedule:run
-      schedule: "0 * * * *"
